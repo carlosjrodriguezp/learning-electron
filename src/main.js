@@ -1,11 +1,14 @@
 const electron = require('electron')
+const path = require('path')
 
 const countdown = require('./countdown.js')
 const ipc = electron.ipcMain
 
-const app = electron.app
-const BrowserWindow = electron.BrowserWindow
-const Menu = electron.Menu
+//const app = electron.app
+//const BrowserWindow = electron.BrowserWindow
+//const Menu = electron.Menu
+
+const {app, BrowserWindow, Menu, Tray } = electron
 
 const windows = []
 
@@ -55,6 +58,12 @@ app.on('ready', function() {
 
 	const menu = Menu.buildFromTemplate(template)
 	Menu.setApplicationMenu(menu)
+
+	const tray = new Tray(path.join('src','my_icon.png'))
+
+	tray.setContextMenu(menu)
+	tray.setToolTip(name)
+
 })
 
 ipc.on('countdown-start', function() {
