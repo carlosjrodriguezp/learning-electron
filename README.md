@@ -1,7 +1,7 @@
 # learning-electron
 
-##Installation
-Node must be installed. Then,
+## Install
+Node must be installed. Then:
 
 ``npm init -y``
 
