@@ -8,7 +8,7 @@ const ipc = electron.ipcMain
 //const BrowserWindow = electron.BrowserWindow
 //const Menu = electron.Menu
 
-const {app, BrowserWindow, Menu, Tray, clipboard } = electron
+const {app, BrowserWindow, Menu, Tray, clipboard, globalShortcut } = electron
 
 const STACK_SIZE = 5
 const ITEM_MAX_LENGTH = 20
@@ -104,6 +104,12 @@ app.on('ready', function() {
 		stack = addToStack(text, stack)
 		console.log("stack", stack)
 		tray.setContextMenu(Menu.buildFromTemplate(formatMenuTemplateForStack(clipboard, stack)))
+	})
+
+	windows[0].openDevTools()
+	globalShortcut.register('Ctrl+S', function() {
+		console.log("PATH: "+app.getPath('pictures'))
+		windows[0].webContents.send('capture', app.getPath('pictures'))
 	})
 
 })
