@@ -8,7 +8,41 @@ const ipc = electron.ipcMain
 //const BrowserWindow = electron.BrowserWindow
 //const Menu = electron.Menu
 
-const {app, BrowserWindow, Menu, Tray } = electron
+const {app, BrowserWindow, Menu, Tray, clipboard } = electron
+
+const STACK_SIZE = 5
+const ITEM_MAX_LENGTH = 20
+
+function addToStack(item, stack) {
+	return [item].concat(stack.length >= STACK_SIZE ? stack.slice(0, stack.length - 1) : stack)
+}
+
+function checkClipboardForChange(clipboard, onChange) {
+	var cache = clipboard.readText()
+	var latest
+	setInterval(function() {
+		latest = clipboard.readText()
+		if(latest != cache){
+			cache = latest
+			onChange(cache)		
+		}
+	}, 1000)
+}
+
+function formatItem(item) {
+	return item && item.length > ITEM_MAX_LENGTH ? item.substr(0, ITEM_MAX_LENGTH) + '...' : item
+}
+
+function formatMenuTemplateForStack(clipboard, stack) {
+	return stack.map(function(item, i) {
+		return {
+			label: `Copy: ${formatItem(item)}`,
+			click: function() {
+				clipboard.writeText(item)
+			}
+		}
+	})
+}
 
 const windows = []
 
@@ -63,6 +97,14 @@ app.on('ready', function() {
 
 	tray.setContextMenu(menu)
 	tray.setToolTip(name)
+
+	var stack = []
+
+	checkClipboardForChange(clipboard, function(text) {
+		stack = addToStack(text, stack)
+		console.log("stack", stack)
+		tray.setContextMenu(Menu.buildFromTemplate(formatMenuTemplateForStack(clipboard, stack)))
+	})
 
 })
 
